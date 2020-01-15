@@ -1,7 +1,9 @@
 JUNKFILES = .bash_history .irb_history .pip .ScanSnap .nbems .fldigi .cpan
 JUNKFILES += .gdb_history .mysql_history .sqlite_history
-BREWPACKAGES := mosh duplicity pv offlineimap wget
+BREWPACKAGES := mosh duplicity pv offlineimap wget syncthing tmux watchman
+BREWCASKPACKAGES := iterm2 spotify postman
 YYYYMM := $(shell date +%Y%m)
+YYYYMMDD := $(shell date +%Y%m%d)
 
 NO_COLOR = \033[0m
 O1_COLOR = \033[0;01m
@@ -36,11 +38,10 @@ mailoffsite: imapbackup
 		mv $(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz.new \
 			$(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz
 
-databackup:
-	mkdir -p $(HOME)/Library/misc
-	brew list > $(HOME)/Library/misc/brewinstalled.txt
-	brew cask list > $(HOME)/Library/misc/brew-cask-installed.txt
-	~/dev/hacks/bin/backup.command
+wikibackup:
+	mkdir -p $(HOME)/Documents/backup/$(YYYYMMDD)
+	zip -X -r $(HOME)/Documents/backup/$(YYYYMMDD)/archive.zip $(HOME)/Sync/wiki-data
+	aws s3 cp $(HOME)/Documents/backup/$(YYYYMMDD)/archive.zip s3://nickrobi-documents/backup/$(YYYYMMDD)/archive.zip
 
 cleanup:
 	-mkdir -p $(HOME)/Documents/$(YYYYMM)
@@ -79,4 +80,7 @@ remotebackup:
 
 packages:
 		brew install $(BREWPACKAGES)
+
+cask:
+		brew cask install $(BREWCASKPACKAGES)
 
